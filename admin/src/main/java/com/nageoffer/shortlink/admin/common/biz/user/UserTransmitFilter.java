@@ -23,7 +23,7 @@ public class UserTransmitFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
 
         String requestURI = httpServletRequest.getRequestURI();
-        if(!Objects.equals(requestURI, "/api/shortlink/v1/user/login")){
+        if(!Objects.equals(requestURI, "/api/shortlink/admin/v1/user/login")){
             String username = httpServletRequest.getHeader("username");
             String token = httpServletRequest.getHeader("token");
             Object userInfoJsonStr = stringRedisTemplate.opsForHash().get("login_" + username, token);
