@@ -1,18 +1,15 @@
-package com.nageoffer.shortlink.project.dao.entity;
+package com.nageoffer.shortlink.project.dto.resp;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.nageoffer.shortlink.project.common.database.BaseDO;
 import lombok.Data;
 
 import java.util.Date;
 
 /**
- * 短链接实体
+ * 短链接分页响应参数
  */
-@TableName("t_link")
 @Data
-public class ShortLinkDO extends BaseDO {
+public class ShortLinkPageRespDTO {
     /**
      * id
      */
@@ -39,24 +36,10 @@ public class ShortLinkDO extends BaseDO {
     private String originUrl;
 
     /**
-     * 点击量
-     */
-    private Integer clickNum;
-
-    /**
      * 分组标识
      */
     private String gid;
 
-    /**
-     * 启用标识 0：未启用 1：已启用
-     */
-    private int enableStatus;
-
-    /**
-     * 创建类型 0：控制台 1：接口
-     */
-    private int createdType;
 
     /**
      * 有效期类型 0：永久有效 1：用户自定义
