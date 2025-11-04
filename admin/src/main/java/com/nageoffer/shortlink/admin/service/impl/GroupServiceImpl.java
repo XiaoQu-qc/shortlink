@@ -63,8 +63,9 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
             Optional<ShortLinkGroupCountQueryRespDTO> first = listResult.getData().stream()
                     .filter(item -> Objects.equals(item.getGid(), each.getGid()))
                     .findFirst();
+            first.ifPresent(item -> each.setShortLinkCount(item.getShortLinkCount()));
         });
-        return BeanUtil.copyToList(groupDOList, ShortLinkGroupRespDTO.class);
+        return shortLinkGroupRespDTOList;
     }
 
     @Override
