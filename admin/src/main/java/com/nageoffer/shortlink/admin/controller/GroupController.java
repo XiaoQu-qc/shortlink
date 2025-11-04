@@ -33,7 +33,7 @@ public class GroupController {
     }
 
     /**
-     * 查询用户索所有短链接分组
+     * 查询用户所有短链接分组
      * @return
      */
     @GetMapping("/api/shortlink/admin/v1/group")
