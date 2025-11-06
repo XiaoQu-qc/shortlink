@@ -186,12 +186,14 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
         boolean contains = shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl);
         if(!contains){
+            ((HttpServletResponse) response).sendRedirect("/page/notfound");
             return;
         }
         //如果contains为true，有可能是误判，进一步操作
         String gotoIsNullShortLink = stringRedisTemplate.opsForValue().get(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl));
         if(StrUtil.isNotBlank(gotoIsNullShortLink)){
             //如果缓存中存在该key，说明该短链接对应的原始链接不存在于数据库，直接返回
+            ((HttpServletResponse) response).sendRedirect("/page/notfound");
             return;
         }
 
@@ -209,6 +211,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(LinkGotoQueryWrapper);
             if (shortLinkGotoDO == null) {
                 stringRedisTemplate.opsForValue().set(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl), "-", 30 , TimeUnit.MINUTES);
+                ((HttpServletResponse) response).sendRedirect("/page/notfound");
                 return;
             }
             LambdaQueryWrapper<ShortLinkDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
@@ -221,6 +224,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 if (shortLinkDO.getValidDate() != null && shortLinkDO.getValidDate().before(new Date())) {
                     //说明短链接已过期
                     stringRedisTemplate.opsForValue().set(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl), "-", 30 , TimeUnit.MINUTES);
+                    ((HttpServletResponse) response).sendRedirect("/page/notfound");
                     return;
                 }
                 stringRedisTemplate.opsForValue().set(
