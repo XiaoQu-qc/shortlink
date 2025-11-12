@@ -16,7 +16,7 @@ public class LinkUtil {
      * @return
      */
     public static long getLinkCacheValidTime(Date validDate) {
-        return Optional.of(validDate)
+        return Optional.ofNullable(validDate)
                 .map(each -> DateUtil.between(new Date(), each, DateUnit.MS))
                 .orElse(DEFAULT_CACHE_VALID_TIME);
     }
