@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nageoffer.shortlink.project.common.convention.exception.ClientException;
 import com.nageoffer.shortlink.project.common.convention.exception.ServiceException;
 import com.nageoffer.shortlink.project.common.enums.ValidDateTypeEnum;
+import com.nageoffer.shortlink.project.config.GotoDomainWhiteListConfig;
 import com.nageoffer.shortlink.project.dao.entity.LinkAccessStatsDO;
 import com.nageoffer.shortlink.project.dao.entity.ShortLinkDO;
 import com.nageoffer.shortlink.project.dao.entity.ShortLinkGotoDO;
@@ -66,12 +67,14 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
     private final LinkAccessStatsMapper linkAccessStatsMapper;
+    private final GotoDomainWhiteListConfig gotoDomainWhiteListConfig;
 
     @Value("${shortlink.domain.default}")
     private String createShortLinkDefaultDomain;
 
     @Override
     public ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam) {
+        verificationWhitelist(requestParam.getOriginUrl());
         String shorLinkSuffix = generateSuffix(requestParam);
         String fullShortUrl = createShortLinkDefaultDomain + "/" + shorLinkSuffix;
         ShortLinkDO shortLinkDO = ShortLinkDO.builder()
@@ -112,6 +115,22 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .originUrl(requestParam.getOriginUrl())
                 .gid(requestParam.getGid())
                 .build();
+    }
+
+    private void verificationWhitelist(String originUrl) {
+        Boolean enable = gotoDomainWhiteListConfig.getEnable();
+        if (enable ==null || !enable){
+            return;
+        }
+
+        String domain = LinkUtil.extractDomain(originUrl);
+        if (StrUtil.isBlank(domain)){
+            throw new ClientException("原始链接格式不正确，无法提取域名");
+        }
+        List<String> details = gotoDomainWhiteListConfig.getDetails();
+        if (!details.contains(domain)){
+            throw new ClientException("原始链接域名不在跳转白名单内，无法创建短链接,请生成以下网站跳转连接"+gotoDomainWhiteListConfig.getNames());
+        }
     }
 
     @Override
